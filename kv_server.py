@@ -5,6 +5,8 @@
 # Author: Houston Wong
 # mail: hzc989@163.com
 # Created Time: Mon 16 Mar 2015 11:43:39 AM HKT
+# Description: A simple redis-like key-value DB server 
+# Usage: python kv_server.py [--host address] [--port portnum] 
 #########################################################################
 """
 import sys
@@ -16,7 +18,7 @@ import time
 import requests
 
 BUFSIZ = 1024
-HOST = "192.168.22.4"
+HOST = "localhost"
 PORT = 5678
 PASS = -1
 DB = {}
@@ -39,18 +41,18 @@ for op,value in opts:
 	elif op == "--port":
 		PORT = int(value)
 	elif op == "-h":
-		print "USAGE:python kv_server.py [--host hostname] [--port portnumber]"
+		print "USAGE:python kv_server.py [--host=hostname] [--port=portnumber]"
 		sys.exit()
 #Handler
 class MyRequestHandler(SocketServer.StreamRequestHandler):
     "Client command handler"
     def handle(self):
         try:
-            print '...connected from:', self.client_address
+            print '[%s]...connected from: %s' % (time.ctime(), self.client_address)
             line = self.rfile.readline().split()
             cmd = line[0].lower()
             p1 = line[1]
-            p2 = line[-1]
+            p2 = '' if cmd == "get" else line[2]
             global DB 
             global URLDB
             global PASS
@@ -69,7 +71,7 @@ class MyRequestHandler(SocketServer.StreamRequestHandler):
                 else:
                     PASS = -1
                 if PASS == -1:
-                    print "[%s] USER AUTHENTICATION FAILED!" % time.ctime()
+                    sys.stderr.write("[%s] USER AUTHENTICATION FAILED!\r\n" % time.ctime())
                 self.wfile.write(PASS)
             elif cmd == "url":
                 if PASS == 0:
@@ -79,12 +81,12 @@ class MyRequestHandler(SocketServer.StreamRequestHandler):
                         response = requests.head(p2)
                         URLDB[p1] = {"status":response.status_code, "content-length":response.headers.get('content-length')}
             else:
-                print "[%s]client%sERROR: command error." % (time.ctime(), self.client_address)
+                sys.stderr.write("[%s]client%sERROR: command error.\r\n" % (time.ctime(), self.client_address))
                 self.wfile.write('%s: invalid command\r\nusage:\r\npython kv_client.py set key value | get key | auth user pwd | url name url' % ValueError )
-        except IndexError,e:
-			print "[%s]client%sERROR: missing arguments " % (time.ctime(), self.client_address)
-        except:
-			print "[%s]client%sERROR: %s - %s" %(time.ctime(), self.client_address, Exception, e)
+        except IndexError,error:
+			sys.stderr.write("[%s]client%sERROR: missing arguments \r\n" % (time.ctime(), self.client_address))
+        except Exception,error:
+			sys.stderr.write("[%s]client%sERROR: %s - %s" %(time.ctime(), self.client_address, Exception, error))
 def main():
     server = SocketServer.ThreadingTCPServer((HOST, PORT),MyRequestHandler)
     print 'waiting for connection...'
