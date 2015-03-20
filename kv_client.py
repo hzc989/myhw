@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 """
-################################################################################
+##########################################################################
 # File Name: kv_client.py
 # Author: Houston Wong
 # mail: hzc989@163.com
 # Created Time: Mon 16 Mar 2015 03:22:59 PM HKT
 # Descrption: a simple redis-like key-value DB client
 # Usage:kv_client set key value | get key |auth user name | url name url
-################################################################################
+##########################################################################
 """
 
 import sys
