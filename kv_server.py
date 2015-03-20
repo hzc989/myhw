@@ -6,7 +6,8 @@
 # mail: hzc989@163.com
 # Created Time: Mon 16 Mar 2015 11:43:39 AM HKT
 # Description: A simple redis-like key-value DB server 
-# Usage: python kv_server.py [--host address] [--port portnum] 
+# Usage: python kv_server.py [--host address] [--port portnum]
+# NOTICE: the auth.conf should be under the same path of the script
 #########################################################################
 """
 import sys
